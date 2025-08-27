@@ -1,102 +1,110 @@
-import Image from "next/image";
+'use client';
+import Navbar from "@/components/Navbar";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from 'react';
 
 export default function Home() {
+  const { firebaseUser, userProfile } = useAuth();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Check for stored user credentials on component mount
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
+  
+  const handleStartMessaging = () => {
+    // Check if user is already authenticated via context
+    if (firebaseUser || userProfile) {
+      router.push('/message');
+      return;
+    }
+    
+    // Check localStorage for stored user ID
+    if (typeof window !== 'undefined') {
+      const storedUserId = localStorage.getItem('userId');
+      if (storedUserId) {
+        // User has stored credentials, redirect to messages
+        router.push('/message');
+      } else {
+        // No stored credentials, redirect to signup
+        router.push('/signup');
+      }
+    } else {
+      // Fallback for SSR
+      router.push('/signup');
+    }
+  };
+  
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Navbar */}
+      <Navbar currentUser={userProfile} />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Hero Section */}
+      <div className="hero min-h-screen">
+        <div className="hero-content text-center">
+          <div className="max-w-md">
+            <h1 className="text-5xl font-bold text-gray-800 mb-8">
+              Connect with Friends
+            </h1>
+            <p className="py-6 text-lg text-gray-600 mb-8">
+              A modern messaging platform built with Next.js, Firebase, and MongoDB. 
+              Send text messages and images, connect with friends, and stay in touch.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button 
+                onClick={handleStartMessaging}
+                className="btn btn-primary btn-lg"
+                disabled={isLoading}
+              >
+                Start Messaging
+              </button>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </div>
+
+      {/* Features Section */}
+      <div className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
+            Why Choose Next-Message?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body text-center">
+                <div className="text-4xl mb-4">🔐</div>
+                <h3 className="card-title justify-center text-purple-500">Secure Authentication</h3>
+                <p className='text-black'>Firebase-powered authentication with Google login and email/password support.</p>
+              </div>
+            </div>
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body text-center">
+                <div className="text-4xl mb-4">💬</div>
+                <h3 className="card-title justify-center text-amber-600">Real-time Messaging</h3>
+                <p className='text-black'>Send text messages and images with instant delivery and real-time updates.</p>
+              </div>
+            </div>
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body text-center">
+                <div className="text-4xl mb-4">👥</div>
+                <h3 className="card-title justify-center text-emerald-500">User Discovery</h3>
+                <p className='text-black'>Search and connect with other users by username to start conversations.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="footer footer-center p-10 bg-gray-800 text-white">
+        <div>
+          <p className="font-bold text-lg mb-2">Next-Message</p>
+          <p className="text-sm opacity-70">Built with Next.js, Firebase, and MongoDB</p>
+          <p className="text-xs opacity-50 mt-2">© 2025 Next-Message. All rights reserved.</p>
+        </div>
       </footer>
     </div>
   );
