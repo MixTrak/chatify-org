@@ -15,10 +15,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Next-Message - Connect with Friends",
+  title: "Chatify - Connect with Friends",
   description: "A modern messaging platform built with Next.js, Firebase, and MongoDB. Send text messages and images, connect with friends, and stay in touch.",
   keywords: ["messaging", "chat", "nextjs", "firebase", "mongodb"],
-  authors: [{ name: "Next-Message Team" }],
+  authors: [{ name: "Chatify Team" }],
 };
 
 export const viewport = {
@@ -36,6 +36,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
         <meta name="theme-color" content="#3b82f6" />
+        <meta name="application-name" content="Chatify" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

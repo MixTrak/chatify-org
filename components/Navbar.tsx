@@ -56,8 +56,8 @@ const Navbar: React.FC<NavbarProps> = ({
             )}
           </ul>
         </div>
-        <Link href="/" className=" text-xl font-bold text-blue-400">
-          Next-Message
+        <Link href="/" className=" text-xl font-bold text-black">
+          Chatify
         </Link>
       </div>
       

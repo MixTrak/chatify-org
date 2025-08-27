@@ -70,7 +70,7 @@ export default function Home() {
       <div className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
-            Why Choose Next-Message?
+            Why Choose Chatify?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="card bg-base-100 shadow-xl">
@@ -101,9 +101,9 @@ export default function Home() {
       {/* Footer */}
       <footer className="footer footer-center p-10 bg-gray-800 text-white">
         <div>
-          <p className="font-bold text-lg mb-2">Next-Message</p>
+          <p className="font-bold text-lg mb-2">Chatify</p>
           <p className="text-sm opacity-70">Built with Next.js, Firebase, and MongoDB</p>
-          <p className="text-xs opacity-50 mt-2">© 2025 Next-Message. All rights reserved.</p>
+          <p className="text-xs opacity-50 mt-2">© 2025 Chatify. All rights reserved.</p>
         </div>
       </footer>
     </div>

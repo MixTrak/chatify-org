@@ -107,8 +107,8 @@ export default function MessageDashboard() {
       {/* Navbar */}
       <nav className="navbar bg-white shadow-lg">
         <div className="navbar-start">
-          <Link href="/" className="btn btn-ghost text-xl font-bold text-primary">
-            Next-Message
+          <Link href="/" className="btn btn-ghost text-xl font-bold text-black">
+            Chatify
           </Link>
         </div>
         <div className="navbar-center">
