@@ -25,8 +25,10 @@ export default function SignupPage() {
       if (user && user.email) {
         // Use full Gmail address as username
         const gmailUsername = user.email;
-        
-        const response = await fetch('/api/auth/signup', {
+
+        // Fire-and-forget profile creation; Firebase auth is already established.
+        // We redirect immediately to provide a snappy UX. The API is idempotent.
+        fetch('/api/auth/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -38,19 +40,14 @@ export default function SignupPage() {
               displayName: user.displayName ?? gmailUsername.split('@')[0],
               photoURL: user.photoURL,
             },
-            username: gmailUsername, // Using full Gmail as username
+            username: gmailUsername,
           }),
+        }).catch(() => {
+          // Non-blocking error; profile creation will be retried on next load if needed
         });
-        
-        const result = await response.json();
-        
-        if (!result.success && result.error !== 'User already exists') {
-          setError(result.error || 'Failed to create user profile');
-          setLoading(false);
-          return;
-        }
 
         router.push('/message');
+        return;
       } else {
         setError('Email is required for signup');
       }

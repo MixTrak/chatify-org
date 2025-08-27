@@ -21,16 +21,17 @@ export async function createUser(user: User, username: string): Promise<{ succes
     const db = await getDatabase();
     const usersCollection = db.collection('users');
     
-    // Check if username already exists
-    const existingUser = await usersCollection.findOne({ username });
-    if (existingUser) {
-      return { success: false, error: 'Username already exists' };
-    }
-    
-    // Check if user already exists
+    // Check if user already exists (idempotent signup)
     const existingUserByUid = await usersCollection.findOne({ uid: user.uid });
     if (existingUserByUid) {
-      return { success: false, error: 'User already exists' };
+      // If the profile already exists, treat as success
+      return { success: true };
+    }
+
+    // Check if username already exists and belongs to a different user
+    const existingUser = await usersCollection.findOne({ username });
+    if (existingUser && existingUser.uid !== user.uid) {
+      return { success: false, error: 'Username already exists' };
     }
     
     const userProfile = {

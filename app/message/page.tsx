@@ -36,11 +36,10 @@ export default function MessageDashboard() {
     if (userProfile) {
       // Fetch conversations after getting user profile
       fetchConversations(userProfile.uid);
-      setLoading(false);
-    } else if (!authLoading) {
-      // If auth is done loading and we still don't have a user profile, redirect to signup
-      router.push('/signup');
     }
+    // Whether or not profile is hydrated yet, allow page to render and
+    // let the profile/context finish loading without redirecting away.
+    setLoading(false);
   }, [firebaseUser, userProfile, authLoading, router]);
   
   const fetchConversations = async (userId: string) => {
