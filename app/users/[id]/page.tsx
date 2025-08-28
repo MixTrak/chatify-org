@@ -4,9 +4,12 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+
 import { UserProfile } from '@/lib/user';
 import { Message } from '@/lib/message';
 import { useAuth } from '@/contexts/AuthContext';
+import CustomCursor from '@/components/CustomCursor';
+import PerformanceOptimizer from '@/components/PerformanceOptimizer';
 
 export default function ChatPage() {
   const { userProfile, firebaseUser, loading: authLoading } = useAuth();
@@ -237,7 +240,10 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
+    <>
+      <PerformanceOptimizer />
+      <CustomCursor>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
       {/* Header */}
       <div className="navbar bg-white shadow-lg sticky top-0 z-10">
         <div className="navbar-start">
@@ -414,6 +420,8 @@ export default function ChatPage() {
           </button>
         </div>
       </div>
-    </div>
+        </div>
+      </CustomCursor>
+    </>
   );
 }

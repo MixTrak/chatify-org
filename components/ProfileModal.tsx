@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserProfile } from '@/lib/user';
 
@@ -12,7 +13,7 @@ interface ProfileModalProps {
 }
 
 export default function ProfileModal({ isOpen, onClose, targetUser }: ProfileModalProps) {
-  const { firebaseUser, userProfile: authProfile, loading: authLoading } = useAuth();
+  const { firebaseUser, loading: authLoading, fetchUserProfile } = useAuth();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -53,6 +54,33 @@ export default function ProfileModal({ isOpen, onClose, targetUser }: ProfileMod
     return false;
   };
 
+  const refreshProfile = useCallback(async () => {
+    if (!firebaseUser) return;
+    
+    try {
+      setIsLoading(true);
+      setError('');
+      const uidToLoad = targetUser?.uid || firebaseUser.uid;
+      
+      // Always fetch fresh data from server for live updates
+      const res = await fetch(`/api/users/profile?uid=${uidToLoad}`);
+      if (!res.ok) throw new Error('Failed to fetch profile');
+      const data = (await res.json()) as UserProfile;
+      
+      setProfile(data);
+      setUsername(data.username || '');
+      setDisplayName(data.displayName || '');
+      setPronouns(data.pronouns || '');
+      setBio(data.bio || '');
+      setLinks(data.links || []);
+      if ((data.links || []).length === 0) setLinks([{ title: '', url: '' }]);
+    } catch {
+      setError('Failed to load profile. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [firebaseUser, targetUser?.uid]);
+
   useEffect(() => {
     if (!isOpen) return;
     if (authLoading) return;
@@ -61,41 +89,10 @@ export default function ProfileModal({ isOpen, onClose, targetUser }: ProfileMod
       setIsLoading(false);
       return;
     }
-    const load = async () => {
-      try {
-        setIsLoading(true);
-        setError('');
-        const uidToLoad = targetUser?.uid || firebaseUser.uid;
-        // If loading self and we already have authProfile, hydrate from it
-        if (!targetUser && authProfile) {
-          setProfile(authProfile);
-          setUsername(authProfile.username || '');
-          setDisplayName(authProfile.displayName || '');
-          setPronouns(authProfile.pronouns || '');
-          setBio(authProfile.bio || '');
-          setLinks(authProfile.links || []);
-          if ((authProfile.links || []).length === 0) setLinks([{ title: '', url: '' }]);
-          setIsLoading(false);
-          return;
-        }
-        const res = await fetch(`/api/users/profile?uid=${uidToLoad}`);
-        if (!res.ok) throw new Error('Failed to fetch profile');
-        const data = (await res.json()) as UserProfile;
-        setProfile(data);
-        setUsername(data.username || '');
-        setDisplayName(data.displayName || '');
-        setPronouns(data.pronouns || '');
-        setBio(data.bio || '');
-        setLinks(data.links || []);
-        if ((data.links || []).length === 0) setLinks([{ title: '', url: '' }]);
-      } catch {
-        setError('Failed to load profile. Please try again.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    load();
-  }, [isOpen, authLoading, firebaseUser, authProfile, targetUser]);
+    
+    // Always refresh profile data when modal opens
+    refreshProfile();
+  }, [isOpen, authLoading, firebaseUser, targetUser?.uid, refreshProfile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,6 +114,11 @@ export default function ProfileModal({ isOpen, onClose, targetUser }: ProfileMod
       setProfile(updated);
       setIsEditing(false);
       setSuccessMessage('Profile updated successfully!');
+      
+      // Refresh the profile data in the auth context if this is the current user
+      if (!targetUser && firebaseUser) {
+        await fetchUserProfile(firebaseUser.uid);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       setSuccessMessage('');
@@ -128,14 +130,39 @@ export default function ProfileModal({ isOpen, onClose, targetUser }: ProfileMod
   const isSelf = !!firebaseUser && (!!targetUser ? targetUser.uid === firebaseUser.uid : true);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className={`absolute inset-0 ${isSelf ? 'bg-transparent' : 'bg-black/60'}`} onClick={() => {
-        if (isFormDirty() && isEditing) {
-          if (!window.confirm('Close without saving changes?')) return;
-        }
-        onClose();
-      }} />
-      <div className="relative w-full max-w-2xl mx-4 rounded-2xl overflow-hidden border border-[#1e1f22] bg-[#313338] shadow-2xl">
+    <AnimatePresence>
+      <motion.div 
+        className="fixed inset-0 z-50 flex items-center justify-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        <motion.div 
+          className={`absolute inset-0 ${isSelf ? 'bg-transparent' : 'bg-black/60'}`} 
+          onClick={() => {
+            if (isFormDirty() && isEditing) {
+              if (!window.confirm('Close without saving changes?')) return;
+            }
+            onClose();
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        />
+        <motion.div 
+          className="relative w-full max-w-2xl mx-4 rounded-2xl overflow-hidden border border-[#1e1f22] bg-[#313338] shadow-2xl"
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 400,
+            damping: 25,
+            duration: 0.3
+          }}
+        >
         <button
           onClick={() => {
             if (isFormDirty() && isEditing) {
@@ -188,9 +215,20 @@ export default function ProfileModal({ isOpen, onClose, targetUser }: ProfileMod
                     <p className="mt-1 text-xs uppercase tracking-wide text-[#b5bac1]">{profile.pronouns}</p>
                   )}
                 </div>
-                {isSelf && (
-                  <button onClick={() => { setIsEditing(true); setSuccessMessage(''); }} className="ml-4 bg-[#5865f2] hover:bg-[#4752c4] text-white font-medium px-4 py-2 rounded-md">Edit Profile</button>
-                )}
+                <div className="flex gap-2">
+                  <button 
+                    onClick={refreshProfile} 
+                    className="bg-[#2b2d31] hover:bg-[#232428] text-white font-medium px-3 py-2 rounded-md"
+                    title="Refresh profile data"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                    </svg>
+                  </button>
+                  {isSelf && (
+                    <button onClick={() => { setIsEditing(true); setSuccessMessage(''); }} className="bg-[#5865f2] hover:bg-[#4752c4] text-white font-medium px-4 py-2 rounded-md">Edit Profile</button>
+                  )}
+                </div>
               </div>
               <div className="mt-4 grid grid-cols-1 gap-4">
                 <div className="rounded-lg bg-[#2b2d31] border border-[#1e1f22] p-4">
@@ -284,8 +322,9 @@ export default function ProfileModal({ isOpen, onClose, targetUser }: ProfileMod
             </form>
           )}
         </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 

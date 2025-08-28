@@ -19,8 +19,9 @@ const Navbar: React.FC<NavbarProps> = ({
   currentUser: propCurrentUser,
 }) => {
   const pathname = usePathname();
-  const { firebaseUser, userProfile } = useAuth();
+  const { firebaseUser, userProfile, fetchUserProfile } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // Use provided currentUser prop if available, otherwise use from context
   const activeUser = propCurrentUser || userProfile;
@@ -106,7 +107,19 @@ const Navbar: React.FC<NavbarProps> = ({
               <li><button onClick={handleLogout} className='text-black'>Logout</button></li>
             </ul>
           </div>
-          <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+          <ProfileModal 
+            key={refreshTrigger}
+            isOpen={isProfileOpen} 
+            onClose={() => {
+              setIsProfileOpen(false);
+              // Refresh user profile data after modal closes to ensure UI is up to date
+              if (firebaseUser) {
+                fetchUserProfile(firebaseUser.uid);
+              }
+              // Force a re-render by updating the component state
+              setRefreshTrigger(prev => prev + 1);
+            }} 
+          />
           </>
         ) : (
           <Link href="/message" className="btn btn-primary">Messages</Link>

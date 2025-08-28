@@ -4,7 +4,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+
 import { UserProfile } from '@/lib/user';
+import CustomCursor from '@/components/CustomCursor';
+import PerformanceOptimizer from '@/components/PerformanceOptimizer';
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -101,7 +104,10 @@ export default function UserProfilePage() {
   }
   
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <>
+      <PerformanceOptimizer />
+      <CustomCursor>
+        <div className="max-w-4xl mx-auto p-4">
       <div className="flex items-center mb-6">
         <Link href="/message" className="text-blue-500 hover:text-blue-700 mr-4">
           <span className="flex items-center">
@@ -178,6 +184,8 @@ export default function UserProfilePage() {
           </div>
         )}
       </div>
-    </div>
+        </div>
+      </CustomCursor>
+    </>
   );
 }

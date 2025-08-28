@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+
 import { UserProfile } from '@/lib/user';
 import { useAuth } from '@/contexts/AuthContext';
+import CustomCursor from '@/components/CustomCursor';
+import PerformanceOptimizer from '@/components/PerformanceOptimizer';
 
 export default function ProfilePage() {
   const { firebaseUser, userProfile: authProfile, loading: authLoading } = useAuth();
@@ -224,7 +227,10 @@ export default function ProfilePage() {
   }
   
   return (
-    <div className="max-w-3xl mx-auto p-4 min-h-screen bg-[#1e1f22]">
+    <>
+      <PerformanceOptimizer />
+      <CustomCursor>
+        <div className="max-w-3xl mx-auto p-4 min-h-screen bg-[#1e1f22]">
       {error && (
         <div className="mb-4 rounded-md border border-[#3f4147] bg-[#2b2d31] text-[#f23f42] px-4 py-3 flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -366,6 +372,8 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
-    </div>
+        </div>
+      </CustomCursor>
+    </>
   );
 }

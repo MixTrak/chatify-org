@@ -12,6 +12,7 @@
     "@types/mongodb": "^4.0.6",
     "daisyui": "^5.0.50",
     "firebase": "^12.1.0",
+    "framer-motion": "^12.23.12",
     "mongodb": "^6.18.0",
     "next": "15.4.6",
     "react": "19.1.0",
