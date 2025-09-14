@@ -128,21 +128,6 @@ export default function HeroSection({ onStartMessaging, isLoading }: HeroSection
               )}
             </motion.button>
             
-            <motion.button 
-              className="btn btn-outline btn-lg text-lg px-8 py-4 interactive"
-              whileHover={{ 
-                scale: 1.05,
-                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.1)"
-              }}
-              whileTap={{ scale: 0.95 }}
-              transition={{
-                type: "spring",
-                stiffness: 400,
-                damping: 17
-              }}
-            >
-              Learn More
-            </motion.button>
           </motion.div>
         </motion.div>
       </div>
