@@ -74,12 +74,6 @@ Chatify brings real-time communication to the web with authentication, scalable 
 
 ---
 
-## 📸 Screenshots
-
-*(Add some preview images of the chat UI here!)*
-
----
-
 ## 🤝 Contributing
 
 Contributions are welcome! Feel free to fork the repo, submit pull requests, or open issues for suggestions and bugs.
